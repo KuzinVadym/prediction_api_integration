@@ -13,7 +13,7 @@ const logger = pino();
 
     await appSrv.withDB();
 
-    appSrv.withHttpServices(createHttpServices());
+    await appSrv.withHttpServices(createHttpServices);
 
     await appSrv.init();
 

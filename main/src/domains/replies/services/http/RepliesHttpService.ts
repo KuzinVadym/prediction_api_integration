@@ -11,12 +11,14 @@ import {
   IUpdateReplyPayload
 } from '../../types';
 import { RepliesRepository } from '../../../../infrastructure/repositories/RepliesRepository';
+import { IGetStateFunction } from '../../../../shared/interfaces/IGetStateFunction';
 
 export interface IRepliesHttpService extends IService {
-  getReply(id: number): Promise<IRepliesResponse>;
+  getReply(id: string): Promise<IRepliesResponse>;
   getReplies(filters?: IGetRepliesPayload): Promise<IRepliesResponse>;
   createReply(payload: ICreateReplyPayload): Promise<IRepliesResponse>;
   updateReply(payload: IUpdateReplyPayload): Promise<IRepliesResponse>;
+  deleteReply(id: string): Promise<IRepliesResponse>;
 }
 
 export class RepliesHttpService implements IRepliesHttpService {
@@ -37,7 +39,7 @@ export class RepliesHttpService implements IRepliesHttpService {
     }
   }
 
-  async getReply(id: number): Promise<IRepliesResponse> {
+  async getReply(id: string): Promise<IRepliesResponse> {
     try {
       const result = await this.repliesHttpResolver.getReply(id);
       return { data: result, success: true };
@@ -51,7 +53,7 @@ export class RepliesHttpService implements IRepliesHttpService {
       const result = await this.repliesHttpResolver.createReply(payload);
       return { data: result, success: true };
     } catch (error) {
-      return { error, success: false, status: error.status };
+      return { error: error.message, success: false, status: error.status };
     }
   }
 
@@ -63,12 +65,23 @@ export class RepliesHttpService implements IRepliesHttpService {
       return { error, success: false, status: error.status };
     }
   }
+
+  async deleteReply(id: string): Promise<IRepliesResponse> {
+    try {
+      await this.repliesHttpResolver.deleteReply(id);
+      return { success: true };
+    } catch (error) {
+      return { error, success: false, status: error.status };
+    }
+  }
 }
 
-export function createRepliesHttpService(): IRepliesHttpService {
-  const commitsRepo = new RepliesRepository();
+export function createRepliesHttpService(
+  getState: IGetStateFunction
+): IRepliesHttpService {
+  const repliesRepo = new RepliesRepository();
   return new RepliesHttpService(
     'replies',
-    new RepliesHttpResolver(commitsRepo)
+    new RepliesHttpResolver(repliesRepo)
   );
 }

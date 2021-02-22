@@ -1,15 +1,19 @@
 import { IResponse } from '../../shared/types/IResponse';
 
 export type IReply = {
-  id?: number;
   name: string;
   value: string;
-  confidence: string;
+  confidence?: string;
+  createdAt?: Date;
+  modifiedAt?: Date;
 };
 
-export type ICreateReplyPayload = Omit<IReply, 'id'>;
+export type ICreateReplyPayload = Omit<IReply, '_id'>;
 
-export type IUpdateReplyPayload = Partial<IReply>;
+export type IUpdateReplyPayload = {
+  id: string;
+  update: Partial<IReply>;
+};
 
 export type IGetRepliesPayload = Partial<IReply>;
 

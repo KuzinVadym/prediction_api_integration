@@ -1,0 +1,27 @@
+version: '3.7'
+services:
+
+  proxy:
+    build: ./proxy
+    container_name: proxy
+    env_file:
+      - ./proxy/.env
+    ports:
+      - "3001:3001"
+
+  main:
+    build: ./main
+    container_name: main
+    env_file:
+      - ./main/.env
+    depends_on:
+      - mongo_db
+    ports:
+      - "3002:3002"
+
+  mongo_db:
+    container_name: mongo_db
+    image: mongo
+    ports:
+      - '27017:27017'
+

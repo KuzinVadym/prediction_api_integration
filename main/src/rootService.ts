@@ -10,12 +10,15 @@ import {
 } from './shared/interfaces';
 import { IServices } from './domains/shared/interfaces/IServices';
 import { connectDB } from './infrastructure/database/config';
+import { IClients } from './shared/interfaces/IClients';
+import { ICreateHttpServices } from './domains';
 
 export class RootService implements IRootService {
   private app: Express;
   private logger: ILogger;
   private settings: ISettings;
   private httpServices: IServices;
+  private httpClients: IClients;
 
   constructor(settings: ISettings, logger: ILogger) {
     this.settings = settings;
@@ -25,7 +28,8 @@ export class RootService implements IRootService {
   public getState(): IState {
     return {
       logger: this.logger,
-      httpServices: this.httpServices
+      httpServices: this.httpServices,
+      httpClients: this.httpClients
     };
   }
 
@@ -34,8 +38,11 @@ export class RootService implements IRootService {
     this.logger.info('Connection with DB established');
   }
 
-  withHttpServices(services: IServices) {
-    this.httpServices = services;
+  async withHttpServices(createHttpServices: ICreateHttpServices) {
+    const getState = () => {
+      return this.getState();
+    };
+    this.httpServices = createHttpServices(getState);
   }
 
   async init(): Promise<void> {
